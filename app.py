@@ -23,16 +23,28 @@ class MyHTTPRequestHandler(SimpleHTTPRequestHandler):
     def do_GET(self):
         try:
             # if self.path == '/':
-                # self.path = '/index.html'  # serve index.html by default
-                # if not os.path.exists(served_directory + '/index.html'):
-                #     self.create_index_html()
+            #     self.path = '/index.html'  # serve index.html by default
+            #     if not os.path.exists(served_directory + '/index.html'):
+            #         self.create_index_html()
             file_path = served_directory + unquote(self.path)
             if os.path.isfile(file_path):
                 self.serve_file(file_path)
             elif os.path.isdir(file_path):
                 self.serve_directory(file_path)
             else:
-                self.send_error(404, "File Not Found: %s" % self.path)
+                # Try to serve the file from subdirectories
+                subdirectories = self.path.split('/')
+                subdirectories = [d for d in subdirectories if d]  # Remove empty strings
+                nested_path = served_directory
+                for directory in subdirectories:
+                    nested_path = os.path.join(nested_path, directory)
+                    if not os.path.exists(nested_path):
+                        self.send_error(404, "File Not Found: %s" % self.path)
+                        return
+                if os.path.isfile(nested_path):
+                    self.serve_file(nested_path)
+                else:
+                    self.send_error(404, "File Not Found: %s" % self.path)
         except Exception as e:
             self.send_error(500, "Internal Server Error: %s" % str(e))
 

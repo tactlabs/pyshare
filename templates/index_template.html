@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Explorer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            padding: 20px;
+        }
+        .directory {
+            color: blue;
+        }
+        .file {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>File Explorer</h1>
+        <ul>
+            {% for item in items %}
+                <li class="{{ item.type }}">
+                    <a href="{{ item.url }}">{{ item.name }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>

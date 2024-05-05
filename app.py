@@ -51,9 +51,16 @@ class MyHTTPRequestHandler(SimpleHTTPRequestHandler):
     def get_directory_content(self):
         items = []
         for item in os.listdir(served_directory):
-            item_type = 'directory' if os.path.isdir(os.path.join(served_directory, item)) else 'file'
-            items.append({'name': item, 'type': item_type, 'url': item})
+            # Ignore folders starting with '.'
+            if not item.startswith('.'):
+                item_type = 'directory' if os.path.isdir(os.path.join(served_directory, item)) else 'file'
+                items.append({'name': item, 'type': item_type, 'url': item})
         return items
+
+    # Create index.html if not available
+    def create_index_html(self):
+        with open(served_directory + '/index.html', 'w') as f:
+            f.write('<!DOCTYPE html>\n<html>\n<head>\n<title>Index</title>\n</head>\n<body>\n<h1>Welcome to Index Page!</h1>\n</body>\n</html>')
 
 # Define the server's host and port
 host = '127.0.0.1'  # localhost

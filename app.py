@@ -10,6 +10,7 @@ source:
 from http.server import SimpleHTTPRequestHandler, HTTPServer
 import os
 from jinja2 import Environment, FileSystemLoader
+from urllib.parse import unquote
 
 # Set up Jinja environment
 template_dir = 'templates'  # directory containing your Jinja templates
@@ -28,7 +29,8 @@ class MyHTTPRequestHandler(SimpleHTTPRequestHandler):
                 self.create_index_html()
         try:
             # Try to open the requested file
-            file_path = served_directory + self.path
+            # Decode the URL path
+            file_path = served_directory + unquote(self.path)
             with open(file_path, 'rb') as f:
                 self.send_response(200)
                 self.end_headers()

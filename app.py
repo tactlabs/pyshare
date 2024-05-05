@@ -21,54 +21,54 @@ env = Environment(loader=FileSystemLoader(template_dir))
 class MyHTTPRequestHandler(SimpleHTTPRequestHandler):
     # Override do_GET method to render Jinja templates
     def do_GET(self):
-        if self.path == '/':
-            self.path = '/index.html'  # serve index.html by default
-            if not os.path.exists(served_directory + '/index.html'):
-                self.create_index_html()
         try:
-            # Try to open the requested file
-            # Decode the URL path
+            # if self.path == '/':
+                # self.path = '/index.html'  # serve index.html by default
+                # if not os.path.exists(served_directory + '/index.html'):
+                #     self.create_index_html()
             file_path = served_directory + unquote(self.path)
-            with open(file_path, 'rb') as f:
-                self.send_response(200)
-                self.end_headers()
+            if os.path.isfile(file_path):
+                self.serve_file(file_path)
+            elif os.path.isdir(file_path):
+                self.serve_directory(file_path)
+            else:
+                self.send_error(404, "File Not Found: %s" % self.path)
+        except Exception as e:
+            self.send_error(500, "Internal Server Error: %s" % str(e))
 
-                # If the requested file is a Jinja template, render it
-                if file_path.endswith('.html'):
-                    template = env.get_template('index_template.html')
-                    items = self.get_directory_content(file_path)
-                    rendered_template = template.render(items=items)
-                    self.wfile.write(rendered_template.encode('utf-8'))
-                else:
-                    # Otherwise, serve the file as usual
-                    self.copyfile(f, self.wfile)
-        except FileNotFoundError:
-            # If the file is not found, return a 404 error
-            self.send_error(404, "File Not Found: %s" % self.path)
+    def serve_file(self, file_path):
+        # Serve the requested file
+        with open(file_path, 'rb') as f:
+            self.send_response(200)
+            self.end_headers()
+            self.copyfile(f, self.wfile)
 
-    # Get directory content (folders and files)
+    def serve_directory(self, directory):
+        # Serve the directory listing
+        items = self.get_directory_content(directory)
+        template = env.get_template('index_template.html')
+        rendered_template = template.render(items=items)
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+        self.wfile.write(rendered_template.encode('utf-8'))
+
     def get_directory_content(self, directory):
+        # Get directory content (folders and files)
         items = []
-        for item in os.listdir(served_directory):
+        for item in os.listdir(directory):
             # Ignore folders starting with '.'
             if not item.startswith('.'):
                 item_path = os.path.join(directory, item)
                 item_type = 'directory' if os.path.isdir(item_path) else 'file'
-
-                # item_type = 'directory' if os.path.isdir(os.path.join(served_directory, item)) else 'file'
-                # items.append({'name': item, 'type': item_type, 'url': item})
                 items.append({'name': item, 'type': item_type, 'url': item})
-                # If item is a directory, recursively get its contents
-                if os.path.isdir(item_path):
-                    sub_items = self.get_directory_content(item_path)
-                    items.extend(sub_items)
-
         return items
 
-    # Create index.html if not available
     def create_index_html(self):
+        # Create index.html if not available
         with open(served_directory + '/index.html', 'w') as f:
             f.write('<!DOCTYPE html>\n<html>\n<head>\n<title>Index</title>\n</head>\n<body>\n<h1>Welcome to Index Page!</h1>\n</body>\n</html>')
+
 
     def server_close(self):
         # Cleanup the index.html file

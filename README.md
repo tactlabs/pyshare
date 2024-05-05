@@ -1,5 +1,5 @@
 # PyShare
-
+Share your local files to the world with PyShare!
 
 ### Why pyshare?
 ```

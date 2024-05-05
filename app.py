@@ -34,6 +34,7 @@ class MyHTTPRequestHandler(SimpleHTTPRequestHandler):
             with open(file_path, 'rb') as f:
                 self.send_response(200)
                 self.end_headers()
+
                 # If the requested file is a Jinja template, render it
                 if file_path.endswith('.html'):
                     template = env.get_template('index_template.html')

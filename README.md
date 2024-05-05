@@ -14,3 +14,8 @@ As the above http server shows plain, we needed a better view
 ```
 python app.py
 ```
+
+## Video & Audio support
+```
+It works only on Firefox at the moment
+```

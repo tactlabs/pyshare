@@ -1,4 +1,4 @@
-# pyshare
+# PyShare
 
 
 ### Why pyshare?

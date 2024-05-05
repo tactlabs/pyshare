@@ -61,8 +61,15 @@ class MyHTTPRequestHandler(SimpleHTTPRequestHandler):
         with open(served_directory + '/index.html', 'w') as f:
             f.write('<!DOCTYPE html>\n<html>\n<head>\n<title>Index</title>\n</head>\n<body>\n<h1>Welcome to Index Page!</h1>\n</body>\n</html>')
 
+    def server_close(self):
+        # Cleanup the index.html file
+        index_file_path = served_directory + '/index.html'
+        if os.path.exists(index_file_path):
+            os.remove(index_file_path)
+        super().server_close()
+
 # Parse command-line arguments
-parser = argparse.ArgumentParser(description="Pyshare: Simple HTTP Server to share your local files to the world!")
+parser = argparse.ArgumentParser(description="PyShare: Simple HTTP Server to share your local files to the world!")
 parser.add_argument("folder", help="Folder path to serve")
 args = parser.parse_args()
 
@@ -77,5 +84,14 @@ port = 8000
 server = HTTPServer((host, port), MyHTTPRequestHandler)
 
 # Start the server
-print(f"Server running on {host}:{port}")
-server.serve_forever()
+# print(f"Server running on {host}:{port}")
+# server.serve_forever()
+
+try:
+    # Start the server
+    print(f"Server running on {host}:{port}")
+    server.serve_forever()
+except KeyboardInterrupt:
+    # If interrupted, gracefully shutdown the server
+    print("Bye!")
+    server.server_close()

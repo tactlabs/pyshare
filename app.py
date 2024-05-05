@@ -7,6 +7,7 @@ source:
     ?
 '''
 
+import argparse
 from http.server import SimpleHTTPRequestHandler, HTTPServer
 import os
 from jinja2 import Environment, FileSystemLoader
@@ -15,9 +16,6 @@ from urllib.parse import unquote
 # Set up Jinja environment
 template_dir = 'templates'  # directory containing your Jinja templates
 env = Environment(loader=FileSystemLoader(template_dir))
-
-# Specify the directory you want to serve
-served_directory = '/home/rajaraman/csp/mlbooks'
 
 # Define the request handler class
 class MyHTTPRequestHandler(SimpleHTTPRequestHandler):
@@ -62,6 +60,14 @@ class MyHTTPRequestHandler(SimpleHTTPRequestHandler):
     def create_index_html(self):
         with open(served_directory + '/index.html', 'w') as f:
             f.write('<!DOCTYPE html>\n<html>\n<head>\n<title>Index</title>\n</head>\n<body>\n<h1>Welcome to Index Page!</h1>\n</body>\n</html>')
+
+# Parse command-line arguments
+parser = argparse.ArgumentParser(description="Pyshare: Simple HTTP Server to share your local files to the world!")
+parser.add_argument("folder", help="Folder path to serve")
+args = parser.parse_args()
+
+# Specify the directory you want to serve
+served_directory = args.folder
 
 # Define the server's host and port
 host = '127.0.0.1'  # localhost

@@ -12,7 +12,9 @@ As the above http server shows plain, we needed a better view
 
 ## How to run?
 ```
-python app.py
+python app.py <folderpath>
+
+python app.py /home/rajaraman/csp/mlbooks
 ```
 
 ## Video & Audio support

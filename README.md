@@ -23,7 +23,7 @@ pip install -r requirements.txt
 ```
 python app.py <folderpath>
 
-python app.py /home/rajaraman/csp/mlbooks
+python app.py ~/csp/mlbooks
 ```
 
 ## Video & Audio support

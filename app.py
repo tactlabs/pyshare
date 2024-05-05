@@ -36,7 +36,7 @@ class MyHTTPRequestHandler(SimpleHTTPRequestHandler):
                 # If the requested file is a Jinja template, render it
                 if file_path.endswith('.html'):
                     template = env.get_template('index_template.html')
-                    items = self.get_directory_content()
+                    items = self.get_directory_content(file_path)
                     rendered_template = template.render(items=items)
                     self.wfile.write(rendered_template.encode('utf-8'))
                 else:
@@ -47,13 +47,22 @@ class MyHTTPRequestHandler(SimpleHTTPRequestHandler):
             self.send_error(404, "File Not Found: %s" % self.path)
 
     # Get directory content (folders and files)
-    def get_directory_content(self):
+    def get_directory_content(self, directory):
         items = []
         for item in os.listdir(served_directory):
             # Ignore folders starting with '.'
             if not item.startswith('.'):
-                item_type = 'directory' if os.path.isdir(os.path.join(served_directory, item)) else 'file'
+                item_path = os.path.join(directory, item)
+                item_type = 'directory' if os.path.isdir(item_path) else 'file'
+
+                # item_type = 'directory' if os.path.isdir(os.path.join(served_directory, item)) else 'file'
+                # items.append({'name': item, 'type': item_type, 'url': item})
                 items.append({'name': item, 'type': item_type, 'url': item})
+                # If item is a directory, recursively get its contents
+                if os.path.isdir(item_path):
+                    sub_items = self.get_directory_content(item_path)
+                    items.extend(sub_items)
+
         return items
 
     # Create index.html if not available
